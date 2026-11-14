@@ -62,3 +62,7 @@ pytest
 ```
 
 Not affiliated with STEINEL GmbH.
+
+## License
+
+MIT – see [LICENSE](LICENSE). Not affiliated with or endorsed by STEINEL GmbH; the BLE protocol was analysed from own captures.

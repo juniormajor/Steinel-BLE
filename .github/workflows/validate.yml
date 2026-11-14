@@ -13,8 +13,6 @@ jobs:
       - uses: hacs/action@main
         with:
           category: integration
-          # no license on purpose (owner decision 2026-11-14)
-          ignore: license
   hassfest:
     runs-on: ubuntu-latest
     steps:

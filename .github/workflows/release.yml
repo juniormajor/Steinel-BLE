@@ -1,9 +1,14 @@
 name: Release
 
+# Creates tag + GitHub release automatically when the version in
+# manifest.json on main has no release yet. HACS shows the release tag
+# as version (https://www.hacs.xyz/docs/publish/start/).
 on:
   push:
-    tags:
-      - "v*"
+    branches: [main]
+    paths:
+      - custom_components/steinel_ble/manifest.json
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -13,16 +18,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Check manifest version matches tag
-        run: |
-          v=$(jq -r .version custom_components/steinel_ble/manifest.json)
-          test "v$v" = "$GITHUB_REF_NAME" || { echo "manifest $v != tag $GITHUB_REF_NAME"; exit 1; }
-      - name: Create release
+      - name: Create release for new manifest version
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
-            echo "Release $GITHUB_REF_NAME exists already"
+          tag="v$(jq -r .version custom_components/steinel_ble/manifest.json)"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            echo "Release $tag exists already – nothing to do"
           else
-            gh release create "$GITHUB_REF_NAME" --verify-tag --generate-notes --title "$GITHUB_REF_NAME"
+            gh release create "$tag" --target "$GITHUB_SHA" --generate-notes --title "$tag"
           fi
