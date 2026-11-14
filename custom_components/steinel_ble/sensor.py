@@ -13,8 +13,6 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.const import (
-    CONCENTRATION_PARTS_PER_BILLION,
-    CONCENTRATION_PARTS_PER_MILLION,
     LIGHT_LUX,
     PERCENTAGE,
     EntityCategory,
@@ -23,6 +21,17 @@ from homeassistant.const import (
     UnitOfTemperature,
 )
 from homeassistant.core import HomeAssistant
+
+try:  # HA 2026.11+: CONCENTRATION_PARTS_PER_* deprecated, removed in 2027.8
+    from homeassistant.const import UnitOfRatio
+
+    PPB = UnitOfRatio.PARTS_PER_BILLION
+    PPM = UnitOfRatio.PARTS_PER_MILLION
+except ImportError:  # older HA
+    from homeassistant.const import (
+        CONCENTRATION_PARTS_PER_BILLION as PPB,
+        CONCENTRATION_PARTS_PER_MILLION as PPM,
+    )
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from .coordinator import SteinelConfigEntry, SteinelData
@@ -88,14 +97,14 @@ LIVE = [
     SteinelSensorDescription(
         key="co2",
         device_class=SensorDeviceClass.CO2,
-        native_unit_of_measurement=CONCENTRATION_PARTS_PER_MILLION,
+        native_unit_of_measurement=PPM,
         state_class=SensorStateClass.MEASUREMENT,
         value_fn=lambda d: d.live.co2,
     ),
     SteinelSensorDescription(
         key="voc",
         device_class=SensorDeviceClass.VOLATILE_ORGANIC_COMPOUNDS_PARTS,
-        native_unit_of_measurement=CONCENTRATION_PARTS_PER_BILLION,
+        native_unit_of_measurement=PPB,
         state_class=SensorStateClass.MEASUREMENT,
         value_fn=lambda d: d.live.voc,
     ),
