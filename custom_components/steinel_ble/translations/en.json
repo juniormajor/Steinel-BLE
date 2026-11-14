@@ -1,0 +1,81 @@
+{
+  "config": {
+    "flow_title": "{name}",
+    "step": {
+      "user": {
+        "description": "Choose a Steinel device that is in range of a Bluetooth adapter or proxy.",
+        "data": {
+          "address": "Device"
+        }
+      },
+      "bluetooth_confirm": {
+        "description": "Set up {name}?"
+      }
+    },
+    "abort": {
+      "already_configured": "Device is already configured",
+      "no_devices_found": "No Steinel device found in range of an adapter or proxy"
+    }
+  },
+  "entity": {
+    "sensor": {
+      "firmware_0": {
+        "name": "Firmware 0"
+      },
+      "firmware_1": {
+        "name": "Firmware 1"
+      },
+      "firmware_2": {
+        "name": "Firmware 2"
+      },
+      "ble_name": {
+        "name": "Bluetooth name"
+      },
+      "brightness": {
+        "name": "Brightness (live)"
+      },
+      "temperature": {
+        "name": "Temperature (live)"
+      },
+      "humidity": {
+        "name": "Humidity (live)"
+      },
+      "co2": {
+        "name": "CO2 (live)"
+      },
+      "voc": {
+        "name": "VOC (live)"
+      },
+      "pressure": {
+        "name": "Air pressure (live)"
+      },
+      "presence": {
+        "name": "Presence (live)",
+        "state": {
+          "no_presence": "No presence",
+          "presence": "Presence",
+          "initialising": "Initialising"
+        }
+      },
+      "distance": {
+        "name": "Distance (live)"
+      }
+    },
+    "switch": {
+      "status_led": {
+        "name": "Status LED"
+      },
+      "keep_noise_filter": {
+        "name": "Keep sensor noise filter"
+      }
+    },
+    "button": {
+      "read_settings": {
+        "name": "Read settings"
+      },
+      "live_values": {
+        "name": "Live values (5 min)"
+      }
+    }
+  }
+}

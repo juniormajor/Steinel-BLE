@@ -1,0 +1,19 @@
+{
+  "domain": "steinel_ble",
+  "name": "Steinel True Presence BLE",
+  "bluetooth": [
+    {
+      "service_uuid": "2672b000-875a-47ff-b1ef-f3f6872db917",
+      "connectable": true
+    }
+  ],
+  "codeowners": ["@juniormajor"],
+  "config_flow": true,
+  "dependencies": ["bluetooth_adapters"],
+  "documentation": "https://github.com/juniormajor/Steinel-BLE",
+  "integration_type": "device",
+  "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/juniormajor/Steinel-BLE/issues",
+  "requirements": [],
+  "version": "0.1.0"
+}
