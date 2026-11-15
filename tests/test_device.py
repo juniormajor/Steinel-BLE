@@ -17,7 +17,7 @@ RESPONSES = {
     0x02: "02001705010118050100",
     0x01: "0100",
     0x03: "0300",
-    # KNX programming mode: not captured yet, shape derived from the app code.
+    # KNX programming mode: shape derived from the app code, verified on the device.
     0x0C: "0c00",
     0x0D: "0d0000",
 }

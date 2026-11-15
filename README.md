@@ -58,7 +58,7 @@ encoded and terminated by `0x00`; the payload is followed by a CRC-16/CCITT
 | `01` | `01 <id LE> <len> <value>` | set parameter |
 | `03` | `03 a5 5a 55 aa` | persist (sent after every set) |
 | `06` | `06 00 01` | start live values (telegram `07` every 0.5 s) |
-| `0c` | `0c 01` / `0c 00` | KNX programming mode on / off (from the app code, not yet captured) |
+| `0c` | `0c 01` / `0c 00` | KNX programming mode on / off (from the app code, verified on a detector: the green KNX LED follows) |
 | `0d` | `0d` | read KNX programming mode, response data `01` = on |
 
 Parameters: `0x0517` keep noise filter (1 = on), `0x0518` disable status LED (1 = disabled).

@@ -162,7 +162,8 @@ def knx_programming_request(enable: bool) -> bytes:
     """Switch the KNX programming mode on or off (not persisted).
 
     Derived from the SmartRemote app (IProductPeripheral.SetKnxProgrammingMode):
-    command 0x0C with one data byte, 1 = on, 0 = off.
+    command 0x0C with one data byte, 1 = on, 0 = off. Verified on a True Presence
+    KNX detector: its green KNX programming LED follows the switch.
     """
     return bytes([CMD_SET_KNX_PROGRAMMING, 1 if enable else 0])
 
