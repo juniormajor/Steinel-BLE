@@ -26,6 +26,11 @@ CMD_LIVE_VALUES = 0x06
 CMD_LIVE_TELEGRAM = 0x07
 CMD_SET_KNX_PROGRAMMING = 0x0C
 CMD_GET_KNX_PROGRAMMING = 0x0D
+CMD_DEVICE_CONTROL = 0x16
+
+# Device control command IDs (product specific, from the SmartRemote app).
+CONTROL_INIT_SENSOR = 0x0F
+INIT_SENSOR_MAX_DELAY = 24 * 3600  # seconds; limit of this integration, not of the device
 CMD_DEVICE_INFO = 0xE0
 CMD_EXTENDED_INFO = 0xE4
 
@@ -176,6 +181,27 @@ def knx_programming_state_request() -> bytes:
 def parse_knx_programming(data: bytes) -> bool:
     """Response data of 0x0D: first byte > 0 means programming mode is on."""
     return bool(data) and data[0] > 0
+
+
+def device_control_request(instance: int, command_id: int, parameter: bytes) -> bytes:
+    """Send a device control command (app: SendDeviceControlCommandAsync).
+
+    Layout for devices with type-length-value support: ``16 <instance> <command id>
+    <parameter length> <parameter>``.
+    """
+    return bytes([CMD_DEVICE_CONTROL, instance, command_id, len(parameter)]) + parameter
+
+
+def init_sensor_request(delay_seconds: int = 0) -> bytes:
+    """Initialise the presence sensor, now or after ``delay_seconds``.
+
+    The app sends control command 0x0F on instance 0 with the delay as u32 LE
+    seconds; 0 means immediately ("Init Sensor"), a delay is "Init Sensor" with a
+    start time. Derived from the app code, not yet verified on a device.
+    """
+    if not 0 <= delay_seconds <= INIT_SENSOR_MAX_DELAY:
+        raise ValueError(f"delay out of range: {delay_seconds}")
+    return device_control_request(0, CONTROL_INIT_SENSOR, delay_seconds.to_bytes(4, "little"))
 
 
 def check_status(payload: bytes) -> bytes:

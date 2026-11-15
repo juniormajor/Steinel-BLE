@@ -186,6 +186,14 @@ class SteinelDevice:
             finally:
                 self._schedule_disconnect()
 
+    async def init_sensor(self, delay_seconds: int = 0) -> None:
+        """Start the sensor initialisation (immediately or delayed)."""
+        async with self._lock:
+            try:
+                await self._request(p.init_sensor_request(delay_seconds))
+            finally:
+                self._schedule_disconnect()
+
     async def start_live_session(
         self, seconds: float, callback: Callable[[p.LiveValues], None]
     ) -> None:

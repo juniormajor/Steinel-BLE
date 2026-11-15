@@ -78,6 +78,14 @@
       },
       "live_values": {
         "name": "Live-Werte (5 min)"
+      },
+      "init_sensor": {
+        "name": "Sensor initialisieren"
+      }
+    },
+    "number": {
+      "init_sensor_delay": {
+        "name": "Verzögerung Sensor-Initialisierung"
       }
     }
   }

@@ -102,3 +102,10 @@ def test_knx_programming_requests():
     assert p.parse_knx_programming(b"\x01") is True
     assert p.parse_knx_programming(b"\x00") is False
     assert p.parse_knx_programming(b"") is False
+
+
+def test_init_sensor_requests():
+    assert p.init_sensor_request() == bytes.fromhex("16000f0400000000")
+    assert p.init_sensor_request(90) == bytes.fromhex("16000f045a000000")
+    with pytest.raises(ValueError):
+        p.init_sensor_request(-1)

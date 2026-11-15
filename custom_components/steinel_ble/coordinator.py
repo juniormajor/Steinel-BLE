@@ -32,6 +32,7 @@ class SteinelData:
     live: p.LiveValues = field(default_factory=p.LiveValues)
     live_active: bool = False
     knx_programming: bool | None = None
+    init_delay_minutes: int = 0
 
 
 type SteinelConfigEntry = ConfigEntry[SteinelCoordinator]
@@ -88,6 +89,13 @@ class SteinelCoordinator(DataUpdateCoordinator[SteinelData]):
         except BLE_ERRORS as err:
             raise HomeAssistantError(f"KNX programming mode failed: {err}") from err
         self.async_set_updated_data(self.data)
+
+    async def async_init_sensor(self) -> None:
+        """Initialise the sensor after the configured delay (0 = now)."""
+        try:
+            await self.device.init_sensor(self.data.init_delay_minutes * 60)
+        except BLE_ERRORS as err:
+            raise HomeAssistantError(f"Init sensor failed: {err}") from err
 
     async def async_start_live(self, seconds: float = LIVE_SESSION_SECONDS) -> None:
         """Stream live values for ``seconds``, then the connection is closed."""

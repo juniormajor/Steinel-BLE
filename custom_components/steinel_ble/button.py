@@ -17,7 +17,9 @@ async def async_setup_entry(
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
     coordinator = entry.runtime_data
-    async_add_entities([ReadSettingsButton(coordinator), LiveValuesButton(coordinator)])
+    async_add_entities(
+        [ReadSettingsButton(coordinator), LiveValuesButton(coordinator), InitSensorButton(coordinator)]
+    )
 
 
 class ReadSettingsButton(SteinelEntity, ButtonEntity):
@@ -43,3 +45,20 @@ class LiveValuesButton(SteinelEntity, ButtonEntity):
 
     async def async_press(self) -> None:
         await self.coordinator.async_start_live()
+
+
+class InitSensorButton(SteinelEntity, ButtonEntity):
+    """Initialise the presence sensor (app: "Init Sensor").
+
+    Uses the delay of the number entity "Init sensor delay" (0 = immediately).
+    Disabled by default: the detector re-learns its room afterwards.
+    """
+
+    _attr_entity_category = EntityCategory.CONFIG
+    _attr_entity_registry_enabled_default = False
+
+    def __init__(self, coordinator) -> None:
+        super().__init__(coordinator, "init_sensor")
+
+    async def async_press(self) -> None:
+        await self.coordinator.async_init_sensor()

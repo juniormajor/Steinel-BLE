@@ -78,6 +78,14 @@
       },
       "live_values": {
         "name": "Live values (5 min)"
+      },
+      "init_sensor": {
+        "name": "Init sensor"
+      }
+    },
+    "number": {
+      "init_sensor_delay": {
+        "name": "Init sensor delay"
       }
     }
   }

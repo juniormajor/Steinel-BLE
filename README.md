@@ -28,8 +28,13 @@ integrations.
 * An entity is available while any adapter or proxy sees the detector; no
   permanent connection is needed.
 
-Not (yet) supported: *Init Sensor* and *Init Sensor with delay* (planned), firmware
-updates. *Reset* (factory reset) will deliberately not be added.
+* *Init sensor* button with *Init sensor delay* (minutes, 0 = immediately): starts
+  the sensor initialisation like the app's "Init Sensor" (with a start time). Both
+  entities are disabled by default. **Experimental:** derived from the app code,
+  not yet verified on a device.
+
+Not supported: firmware updates. *Reset* (factory reset) will deliberately not be
+added.
 
 ## Installation
 
@@ -60,6 +65,7 @@ encoded and terminated by `0x00`; the payload is followed by a CRC-16/CCITT
 | `06` | `06 00 01` | start live values (telegram `07` every 0.5 s) |
 | `0c` | `0c 01` / `0c 00` | KNX programming mode on / off (from the app code, verified on a detector: the green KNX LED follows) |
 | `0d` | `0d` | read KNX programming mode, response data `01` = on |
+| `16` | `16 <instance> <id> <len> <data>` | device control; init sensor = `16 00 0f 04 <delay s u32 LE>` (from the app code, not yet verified) |
 
 Parameters: `0x0517` keep noise filter (1 = on), `0x0518` disable status LED (1 = disabled).
 
