@@ -13,7 +13,7 @@ integrations.
   request, so a proxy connection slot is held for a few seconds at most.
 * Reads firmware versions and the two settings the SmartRemote app offers, on setup,
   once a day and with the button *Read settings*.
-* Switches: *Status LED* (app setting "Status-LED deaktivieren", inverted) and
+* Switches: *BLE status LED* (lights blue only while a BLE connection is active; app setting "Status-LED deaktivieren", inverted) and
   *Keep sensor noise filter* ("Sensor-Rauschfilter beibehalten").
 * *Live values (5 min)*: streams brightness, temperature, humidity, CO2, VOC,
   air pressure, presence and distance for five minutes, then disconnects. The live

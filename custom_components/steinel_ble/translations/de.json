@@ -63,7 +63,7 @@
     },
     "switch": {
       "status_led": {
-        "name": "Status-LED"
+        "name": "BLE-Status-LED"
       },
       "keep_noise_filter": {
         "name": "Sensor-Rauschfilter beibehalten"

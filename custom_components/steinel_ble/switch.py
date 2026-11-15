@@ -22,7 +22,8 @@ class SteinelSwitchDescription(SwitchEntityDescription):
 
 
 SWITCHES = [
-    # App: "Status-LED deaktivieren" (checked = 1). The switch shows the LED as enabled.
+    # App: "Status-LED deaktivieren" (checked = 1). The LED only lights blue while a
+    # BLE connection is active. The switch shows the LED as enabled (inverted).
     SteinelSwitchDescription(
         key="status_led",
         param_id=p.PARAM_DISABLE_STATUS_LED,
