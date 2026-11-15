@@ -67,6 +67,9 @@
       },
       "keep_noise_filter": {
         "name": "Sensor-Rauschfilter beibehalten"
+      },
+      "knx_programming": {
+        "name": "KNX-Programmiermodus"
       }
     },
     "button": {

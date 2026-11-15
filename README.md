@@ -6,6 +6,8 @@ Home Assistant Bluetooth stack, so local adapters and the ESPHome Bluetooth
 proxies Home Assistant already uses are shared with all other Bluetooth
 integrations.
 
+[![Open your Home Assistant instance and open this repository in the Marketplace.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=juniormajor&repository=Steinel-BLE&category=integration)
+
 ## What it does
 
 * Finds detectors by their advertisements (service `2672b000-875a-47ff-b1ef-f3f6872db917`).
@@ -15,6 +17,10 @@ integrations.
   once a day and with the button *Read settings*.
 * Switches: *BLE status LED* (lights blue only while a BLE connection is active; app setting "Status-LED deaktivieren", inverted) and
   *Keep sensor noise filter* ("Sensor-Rauschfilter beibehalten").
+  Every change is saved on the detector immediately (the app's "Übernehmen").
+* *KNX programming mode* switch: same as the programming button on the detector;
+  the state is read with every refresh. Not saved, the detector leaves the mode on
+  its own after ETS has programmed it.
 * *Live values (5 min)*: streams brightness, temperature, humidity, CO2, VOC,
   air pressure, presence and distance for five minutes, then disconnects. The live
   sensors and the button are disabled by default because the KNX variant reports
@@ -22,14 +28,15 @@ integrations.
 * An entity is available while any adapter or proxy sees the detector; no
   permanent connection is needed.
 
-Not (yet) supported: *Init Sensor*, *Reset*, *KNX programming mode* and firmware
-updates. Their commands are not known yet; firmware updates will not be added.
+Not (yet) supported: *Init Sensor* and *Init Sensor with delay* (planned), firmware
+updates. *Reset* (factory reset) will deliberately not be added.
 
 ## Installation
 
-HACS → ⋮ → Custom repositories → `https://github.com/juniormajor/Steinel-BLE`,
-type *Integration*. Install, restart Home Assistant; detectors in range are
-discovered automatically.
+Use the button above, or in Home Assistant 2026.11+ open **Settings → Marketplace →
+Add from link** and enter `juniormajor/Steinel-BLE` (with HACS on older versions:
+HACS → ⋮ → Custom repositories, type *Integration*). Install, restart Home Assistant;
+detectors in range are discovered automatically.
 
 Requirements: a Bluetooth adapter or an ESPHome Bluetooth proxy with
 `bluetooth_proxy: active: true` in range of the detector. The detector accepts the
@@ -51,6 +58,8 @@ encoded and terminated by `0x00`; the payload is followed by a CRC-16/CCITT
 | `01` | `01 <id LE> <len> <value>` | set parameter |
 | `03` | `03 a5 5a 55 aa` | persist (sent after every set) |
 | `06` | `06 00 01` | start live values (telegram `07` every 0.5 s) |
+| `0c` | `0c 01` / `0c 00` | KNX programming mode on / off (from the app code, not yet captured) |
+| `0d` | `0d` | read KNX programming mode, response data `01` = on |
 
 Parameters: `0x0517` keep noise filter (1 = on), `0x0518` disable status LED (1 = disabled).
 

@@ -24,6 +24,8 @@ CMD_GET_PARAMETER = 0x02
 CMD_PERSIST = 0x03
 CMD_LIVE_VALUES = 0x06
 CMD_LIVE_TELEGRAM = 0x07
+CMD_SET_KNX_PROGRAMMING = 0x0C
+CMD_GET_KNX_PROGRAMMING = 0x0D
 CMD_DEVICE_INFO = 0xE0
 CMD_EXTENDED_INFO = 0xE4
 
@@ -154,6 +156,25 @@ def persist_request() -> bytes:
 
 def live_values_request(enable: bool = True) -> bytes:
     return bytes([CMD_LIVE_VALUES, 0x00, 0x01 if enable else 0x00])
+
+
+def knx_programming_request(enable: bool) -> bytes:
+    """Switch the KNX programming mode on or off (not persisted).
+
+    Derived from the SmartRemote app (IProductPeripheral.SetKnxProgrammingMode):
+    command 0x0C with one data byte, 1 = on, 0 = off.
+    """
+    return bytes([CMD_SET_KNX_PROGRAMMING, 1 if enable else 0])
+
+
+def knx_programming_state_request() -> bytes:
+    """Read the KNX programming mode (app: GetKnxProgrammingMode, command 0x0D)."""
+    return bytes([CMD_GET_KNX_PROGRAMMING])
+
+
+def parse_knx_programming(data: bytes) -> bool:
+    """Response data of 0x0D: first byte > 0 means programming mode is on."""
+    return bool(data) and data[0] > 0
 
 
 def check_status(payload: bytes) -> bytes:

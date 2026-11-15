@@ -31,6 +31,7 @@ class SteinelData:
     params: dict[int, bytes] = field(default_factory=dict)
     live: p.LiveValues = field(default_factory=p.LiveValues)
     live_active: bool = False
+    knx_programming: bool | None = None
 
 
 type SteinelConfigEntry = ConfigEntry[SteinelCoordinator]
@@ -69,6 +70,7 @@ class SteinelCoordinator(DataUpdateCoordinator[SteinelData]):
         data.versions = result["versions"]
         data.ble_name = result["name"]
         data.params.update(result["params"])
+        data.knx_programming = result.get("knx_programming")
         return data
 
     async def async_set_flag(self, param_id: int, value: bool) -> None:
@@ -78,6 +80,14 @@ class SteinelCoordinator(DataUpdateCoordinator[SteinelData]):
         except BLE_ERRORS as err:
             raise HomeAssistantError(f"Setting parameter 0x{param_id:04x} failed: {err}") from err
         await self.async_request_refresh()
+
+    async def async_set_knx_programming(self, enable: bool) -> None:
+        """Switch the KNX programming mode (transient, not persisted)."""
+        try:
+            self.data.knx_programming = await self.device.set_knx_programming(enable)
+        except BLE_ERRORS as err:
+            raise HomeAssistantError(f"KNX programming mode failed: {err}") from err
+        self.async_set_updated_data(self.data)
 
     async def async_start_live(self, seconds: float = LIVE_SESSION_SECONDS) -> None:
         """Stream live values for ``seconds``, then the connection is closed."""

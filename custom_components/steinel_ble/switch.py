@@ -45,7 +45,9 @@ async def async_setup_entry(
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
     coordinator = entry.runtime_data
-    async_add_entities(SteinelSwitch(coordinator, d) for d in SWITCHES)
+    entities: list[SwitchEntity] = [SteinelSwitch(coordinator, d) for d in SWITCHES]
+    entities.append(SteinelKnxProgrammingSwitch(coordinator))
+    async_add_entities(entities)
 
 
 class SteinelSwitch(SteinelEntity, SwitchEntity):
@@ -72,3 +74,26 @@ class SteinelSwitch(SteinelEntity, SwitchEntity):
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         await self._async_set(False)
+
+
+class SteinelKnxProgrammingSwitch(SteinelEntity, SwitchEntity):
+    """KNX programming mode, like the programming button on the device.
+
+    The state is read with every refresh; the device may leave the mode on its own
+    (e.g. after ETS has assigned the physical address).
+    """
+
+    _attr_entity_category = EntityCategory.CONFIG
+
+    def __init__(self, coordinator) -> None:
+        super().__init__(coordinator, "knx_programming")
+
+    @property
+    def is_on(self) -> bool | None:
+        return self.coordinator.data.knx_programming
+
+    async def async_turn_on(self, **kwargs: Any) -> None:
+        await self.coordinator.async_set_knx_programming(True)
+
+    async def async_turn_off(self, **kwargs: Any) -> None:
+        await self.coordinator.async_set_knx_programming(False)

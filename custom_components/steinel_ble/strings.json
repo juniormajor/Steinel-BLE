@@ -67,6 +67,9 @@
       },
       "keep_noise_filter": {
         "name": "Keep sensor noise filter"
+      },
+      "knx_programming": {
+        "name": "KNX programming mode"
       }
     },
     "button": {

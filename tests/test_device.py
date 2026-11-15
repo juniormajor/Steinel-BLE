@@ -17,6 +17,9 @@ RESPONSES = {
     0x02: "02001705010118050100",
     0x01: "0100",
     0x03: "0300",
+    # KNX programming mode: not captured yet, shape derived from the app code.
+    0x0C: "0c00",
+    0x0D: "0d0000",
 }
 
 
@@ -58,7 +61,25 @@ async def test_read_all_and_set():
         assert [c.display() for c in result["versions"]] == ["2.5 | 1", "1.8", "2.1.12 | 1"]
         assert result["params"] == {0x0517: b"\x01", 0x0518: b"\x00"}
         assert result["name"] == "knx-og-bu"
+        assert result["knx_programming"] is False
         await dev.set_parameter(0x0518, b"\x01")
         assert fake.written[-2:] == ["0118050101", "03a55a55aa"]
         await asyncio.sleep(2.5)  # idle disconnect
         assert fake.is_connected is False
+
+
+async def test_knx_programming():
+    fake = FakeClient()
+
+    async def _connect(*_args, **_kwargs):
+        return fake
+
+    with patch("custom_components.steinel_ble.device.establish_connection", _connect):
+        dev = SteinelDevice(BLEDevice("F0:FC:0F:B5:A8:82", None, None), "test")
+        RESPONSES[0x0D] = "0d0001"
+        try:
+            assert await dev.set_knx_programming(True) is True
+        finally:
+            RESPONSES[0x0D] = "0d0000"
+        assert fake.written[-2:] == ["0c01", "0d"]
+        await dev.disconnect()

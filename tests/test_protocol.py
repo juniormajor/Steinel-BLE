@@ -93,3 +93,12 @@ def test_set_parameter_request():
     assert p.set_parameter_request(0x0518, b"\x01").hex() == "0118050101"
     assert p.get_parameters_request(0x0517, 0x0518).hex() == "0217051805"
     assert p.persist_request().hex() == "03a55a55aa"
+
+
+def test_knx_programming_requests():
+    assert p.knx_programming_request(True) == bytes.fromhex("0c01")
+    assert p.knx_programming_request(False) == bytes.fromhex("0c00")
+    assert p.knx_programming_state_request() == bytes.fromhex("0d")
+    assert p.parse_knx_programming(b"\x01") is True
+    assert p.parse_knx_programming(b"\x00") is False
+    assert p.parse_knx_programming(b"") is False

@@ -149,9 +149,22 @@ class SteinelDevice:
                         )
                     )
                 )
+                knx_programming = None
+                try:
+                    knx_programming = p.parse_knx_programming(
+                        await self._request(p.knx_programming_state_request())
+                    )
+                except (p.ProtocolError, TimeoutError) as err:
+                    _LOGGER.debug("%s: KNX programming mode not readable: %s", self._name, err)
             finally:
                 self._schedule_disconnect()
-        return {"info": info, "versions": versions, "params": params, "name": name}
+        return {
+            "info": info,
+            "versions": versions,
+            "params": params,
+            "name": name,
+            "knx_programming": knx_programming,
+        }
 
     async def set_parameter(self, param_id: int, value: bytes) -> None:
         """Set a parameter and persist it, like the app does."""
@@ -159,6 +172,17 @@ class SteinelDevice:
             try:
                 await self._request(p.set_parameter_request(param_id, value))
                 await self._request(p.persist_request())
+            finally:
+                self._schedule_disconnect()
+
+    async def set_knx_programming(self, enable: bool) -> bool:
+        """Switch the KNX programming mode and read the resulting state."""
+        async with self._lock:
+            try:
+                await self._request(p.knx_programming_request(enable))
+                return p.parse_knx_programming(
+                    await self._request(p.knx_programming_state_request())
+                )
             finally:
                 self._schedule_disconnect()
 
