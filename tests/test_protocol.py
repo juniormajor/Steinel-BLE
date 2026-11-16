@@ -58,7 +58,10 @@ def test_error_status():
 
 def test_device_info():
     data = p.check_status(bytes.fromhex("e000a61b0500010000030102 05".replace(" ", "")))
-    assert p.parse_device_info(data).product_number == 7078
+    info = p.parse_device_info(data)
+    assert info.product_number == 7078
+    assert info.abilities == 0x0005
+    assert not info.instance_tlv
 
 
 
@@ -105,7 +108,9 @@ def test_knx_programming_requests():
 
 
 def test_init_sensor_requests():
-    assert p.init_sensor_request() == bytes.fromhex("16000f0400000000")
-    assert p.init_sensor_request(90) == bytes.fromhex("16000f045a000000")
+    assert p.init_sensor_request() == bytes.fromhex("090f0400000000")
+    assert p.init_sensor_request(90) == bytes.fromhex("090f045a000000")
+    assert p.init_sensor_request(instance_tlv=True) == bytes.fromhex("16000f0400000000")
+    assert p.init_sensor_request(90, True) == bytes.fromhex("16000f045a000000")
     with pytest.raises(ValueError):
         p.init_sensor_request(-1)

@@ -20,6 +20,8 @@ RESPONSES = {
     # KNX programming mode: shape derived from the app code, verified on the device.
     0x0C: "0c00",
     0x0D: "0d0000",
+    # Init sensor without instance TLV: shape from the app code, not yet verified.
+    0x09: "0900",
 }
 
 
@@ -82,4 +84,19 @@ async def test_knx_programming():
         finally:
             RESPONSES[0x0D] = "0d0000"
         assert fake.written[-2:] == ["0c01", "0d"]
+        await dev.disconnect()
+
+
+async def test_init_sensor_uses_command_09_without_instance_tlv():
+    fake = FakeClient()
+
+    async def _connect(*_args, **_kwargs):
+        return fake
+
+    with patch("custom_components.steinel_ble.device.establish_connection", _connect):
+        dev = SteinelDevice(BLEDevice("F0:FC:0F:B5:A8:82", None, None), "test")
+        await dev.init_sensor(0)
+        assert fake.written == ["e0", "090f0400000000"]
+        await dev.init_sensor(300)
+        assert fake.written[-1] == "090f042c010000"
         await dev.disconnect()
