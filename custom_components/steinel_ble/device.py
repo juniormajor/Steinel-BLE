@@ -190,7 +190,8 @@ class SteinelDevice:
         """Start the sensor initialisation (immediately or delayed)."""
         async with self._lock:
             try:
-                await self._request(p.init_sensor_request(delay_seconds))
+                info = p.parse_device_info(await self._request(bytes([p.CMD_DEVICE_INFO])))
+                await self._request(p.init_sensor_request(delay_seconds, info.instance_tlv))
             finally:
                 self._schedule_disconnect()
 

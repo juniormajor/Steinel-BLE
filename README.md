@@ -57,7 +57,7 @@ encoded and terminated by `0x00`; the payload is followed by a CRC-16/CCITT
 
 | Command | Request | Meaning |
 |---|---|---|
-| `e0` | `e0` | device info (product number u16 LE) |
+| `e0` | `e0` | device info: product number u16 LE, ability bits u16 LE (bit 0 TLV parameters, bit 1 instance TLV, bit 2 extended info) |
 | `e4` | `e4 01 02` | software / hardware version per component |
 | `02` | `02 <id LE>…` | read parameters |
 | `01` | `01 <id LE> <len> <value>` | set parameter |
@@ -65,7 +65,8 @@ encoded and terminated by `0x00`; the payload is followed by a CRC-16/CCITT
 | `06` | `06 00 01` | start live values (telegram `07` every 0.5 s) |
 | `0c` | `0c 01` / `0c 00` | KNX programming mode on / off (from the app code, verified on a detector: the green KNX LED follows) |
 | `0d` | `0d` | read KNX programming mode, response data `01` = on |
-| `16` | `16 <instance> <id> <len> <data>` | device control; init sensor = `16 00 0f 04 <delay s u32 LE>` (from the app code, not yet verified) |
+| `09` | `09 <id> <len> <data>` | device control without instance TLV (ability bit 1 clear, e.g. 7078); init sensor = `09 0f 04 <delay s u32 LE>` (from the app code, not yet verified) |
+| `16` | `16 <instance> <id> <len> <data>` | device control with instance TLV; the 7078 rejects it with "invalid command" |
 
 Parameters: `0x0517` keep noise filter (1 = on), `0x0518` disable status LED (1 = disabled).
 

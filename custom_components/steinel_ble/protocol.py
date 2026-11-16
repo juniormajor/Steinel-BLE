@@ -26,6 +26,7 @@ CMD_LIVE_VALUES = 0x06
 CMD_LIVE_TELEGRAM = 0x07
 CMD_SET_KNX_PROGRAMMING = 0x0C
 CMD_GET_KNX_PROGRAMMING = 0x0D
+CMD_DEVICE_CONTROL_SIMPLE = 0x09
 CMD_DEVICE_CONTROL = 0x16
 
 # Device control command IDs (product specific, from the SmartRemote app).
@@ -35,6 +36,11 @@ CMD_DEVICE_INFO = 0xE0
 CMD_EXTENDED_INFO = 0xE4
 
 PERSIST_MAGIC = bytes.fromhex("a55a55aa")
+
+# Ability bits in the device info (u16 LE after the product number).
+ABILITY_TLV_PARAMETERS = 0x0001
+ABILITY_INSTANCE_TLV = 0x0002
+ABILITY_EXTENDED_INFO = 0x0004
 
 # Parameter IDs (16 bit, little endian on the wire).
 PARAM_KEEP_NOISE_FILTER = 0x0517  # app: "Sensor-Rauschfilter beibehalten", 1 = checked
@@ -183,25 +189,34 @@ def parse_knx_programming(data: bytes) -> bool:
     return bool(data) and data[0] > 0
 
 
-def device_control_request(instance: int, command_id: int, parameter: bytes) -> bytes:
+def device_control_request(
+    instance: int, command_id: int, parameter: bytes, instance_tlv: bool = False
+) -> bytes:
     """Send a device control command (app: SendDeviceControlCommandAsync).
 
-    Layout for devices with type-length-value support: ``16 <instance> <command id>
-    <parameter length> <parameter>``.
+    The app picks the layout from the ability bits of the device info: with
+    instance type-length-value support ``16 <instance> <command id> <length>
+    <parameter>``, otherwise ``09 <command id> <length> <parameter>`` (the instance
+    is dropped). Multisensor True Presence KNX (7078) reports no instance TLV and
+    rejects 0x16 with "invalid command".
     """
-    return bytes([CMD_DEVICE_CONTROL, instance, command_id, len(parameter)]) + parameter
+    if instance_tlv:
+        return bytes([CMD_DEVICE_CONTROL, instance, command_id, len(parameter)]) + parameter
+    return bytes([CMD_DEVICE_CONTROL_SIMPLE, command_id, len(parameter)]) + parameter
 
 
-def init_sensor_request(delay_seconds: int = 0) -> bytes:
+def init_sensor_request(delay_seconds: int = 0, instance_tlv: bool = False) -> bytes:
     """Initialise the presence sensor, now or after ``delay_seconds``.
 
-    The app sends control command 0x0F on instance 0 with the delay as u32 LE
+    The app sends control command 0x0F (instance 0) with the delay as u32 LE
     seconds; 0 means immediately ("Init Sensor"), a delay is "Init Sensor" with a
     start time. Derived from the app code, not yet verified on a device.
     """
     if not 0 <= delay_seconds <= INIT_SENSOR_MAX_DELAY:
         raise ValueError(f"delay out of range: {delay_seconds}")
-    return device_control_request(0, CONTROL_INIT_SENSOR, delay_seconds.to_bytes(4, "little"))
+    return device_control_request(
+        0, CONTROL_INIT_SENSOR, delay_seconds.to_bytes(4, "little"), instance_tlv
+    )
 
 
 def check_status(payload: bytes) -> bytes:
@@ -234,12 +249,20 @@ class DeviceInfo:
 
     product_number: int
     raw: bytes
+    abilities: int = 0
+
+    @property
+    def instance_tlv(self) -> bool:
+        return bool(self.abilities & ABILITY_INSTANCE_TLV)
 
 
 def parse_device_info(data: bytes) -> DeviceInfo:
     if len(data) < 2:
         raise ProtocolError("device info too short")
-    return DeviceInfo(product_number=int.from_bytes(data[:2], "little"), raw=data)
+    abilities = int.from_bytes(data[2:4], "little") if len(data) >= 4 else 0
+    return DeviceInfo(
+        product_number=int.from_bytes(data[:2], "little"), raw=data, abilities=abilities
+    )
 
 
 def _parse_version(field_data: bytes) -> str | None:
