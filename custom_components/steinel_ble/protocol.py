@@ -210,8 +210,8 @@ def init_sensor_request(delay_seconds: int = 0, instance_tlv: bool = False) -> b
 
     The app sends control command 0x0F (instance 0) with the delay as u32 LE
     seconds; 0 means immediately ("Init Sensor"), a delay is "Init Sensor" with a
-    start time. Derived from the app code; delay 0 verified on a True Presence KNX
-    (detector lights white while initialising), the delayed start not yet.
+    start time. Derived from the app code and verified on a True Presence KNX,
+    immediate and delayed (detector lights white while initialising).
     """
     if not 0 <= delay_seconds <= INIT_SENSOR_MAX_DELAY:
         raise ValueError(f"delay out of range: {delay_seconds}")
