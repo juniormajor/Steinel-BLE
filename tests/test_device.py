@@ -20,7 +20,7 @@ RESPONSES = {
     # KNX programming mode: shape derived from the app code, verified on the device.
     0x0C: "0c00",
     0x0D: "0d0000",
-    # Init sensor without instance TLV: shape from the app code, not yet verified.
+    # Init sensor without instance TLV: shape from the app code, verified on the device.
     0x09: "0900",
 }
 
