@@ -30,8 +30,9 @@ integrations.
 
 * *Init sensor* button with *Init sensor delay* (minutes, 0 = immediately): starts
   the sensor initialisation like the app's "Init Sensor" (with a start time). Both
-  entities are disabled by default. **Experimental:** derived from the app code,
-  not yet verified on a device.
+  entities are disabled by default. Immediate init verified on a True Presence
+  KNX (the detector lights white while initialising); the delayed start is derived
+  from the app code and not yet verified.
 
 Not supported: firmware updates. *Reset* (factory reset) will deliberately not be
 added.
@@ -65,7 +66,7 @@ encoded and terminated by `0x00`; the payload is followed by a CRC-16/CCITT
 | `06` | `06 00 01` | start live values (telegram `07` every 0.5 s) |
 | `0c` | `0c 01` / `0c 00` | KNX programming mode on / off (from the app code, verified on a detector: the green KNX LED follows) |
 | `0d` | `0d` | read KNX programming mode, response data `01` = on |
-| `09` | `09 <id> <len> <data>` | device control without instance TLV (ability bit 1 clear, e.g. 7078); init sensor = `09 0f 04 <delay s u32 LE>` (from the app code, not yet verified) |
+| `09` | `09 <id> <len> <data>` | device control without instance TLV (ability bit 1 clear, e.g. 7078); init sensor = `09 0f 04 <delay s u32 LE>` (from the app code; delay 0 verified on a detector, delayed start not yet) |
 | `16` | `16 <instance> <id> <len> <data>` | device control with instance TLV; the 7078 rejects it with "invalid command" |
 
 Parameters: `0x0517` keep noise filter (1 = on), `0x0518` disable status LED (1 = disabled).
